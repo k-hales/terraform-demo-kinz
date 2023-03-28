@@ -46,6 +46,9 @@ resource "aws_subnet" "private" {
   availability_zone = data.aws_availability_zones.availability_zone.names[count.index]
 }
 # Public Route Table 
+
 # Private Route Table
+
 # IGW
+
 # NGW
