@@ -5,12 +5,6 @@ terraform {
       version = "4.60.0"
     }
   }
-  backend "s3" {
-    bucket = "kinzh-test-buck-buck"
-    key = "terraform.tfstate"
-    region = "us-east-1"
-    
-  }
 }
 
 provider "aws" {
@@ -64,14 +58,17 @@ resource "aws_internet_gateway" "main_igw" {
 resource "aws_eip" "NAT_EIP" {
   vpc = true
 }
-# NGW
+# NGW 1
 resource "aws_nat_gateway" "main_NAT" {
   allocation_id = aws_eip.NAT_EIP.id
-  subnet_id     = aws_subnet.public.0.id
+  subnet_id = aws_subnet.public.0.id
   tags = {
     "Name" = "${var.default_tags.env}-NGW"
   }
 }
+# NGW 2
+
+
 # Public Route Table
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
@@ -81,14 +78,14 @@ resource "aws_route_table" "public" {
 }
 # Public Routes - for route table
 resource "aws_route" "public" {
-  route_table_id         = aws_route_table.public.id
+  route_table_id = aws_route_table.public.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.main_igw.id
+  gateway_id = aws_internet_gateway.main_igw.id
 }
 # Public Route Table Association
 resource "aws_route_table_association" "public" {
-  count          = var.public_subnet_count
-  subnet_id      = element(aws_subnet.public.*.id, count.index)
+  count = var.public_subnet_count
+  subnet_id = element(aws_subnet.public.*.id, count.index)
   route_table_id = aws_route_table.public.id
 }
 # Private Route Table
@@ -100,14 +97,14 @@ resource "aws_route_table" "private" {
 }
 # Private Routes - for route table
 resource "aws_route" "private" {
-  route_table_id         = aws_route_table.private.id
+  route_table_id = aws_route_table.private.id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.main_NAT.id
+  nat_gateway_id = aws_nat_gateway.main_NAT.id
 }
 # Private Route Table Association
 resource "aws_route_table_association" "private" {
-  count          = var.private_subnet_count
-  subnet_id      = element(aws_subnet.private.*.id, count.index)
+  count = var.private_subnet_count
+  subnet_id = element(aws_subnet.private.*.id, count.index)
   route_table_id = aws_route_table.private.id
 }
 # Naming Elastic IP
@@ -117,19 +114,19 @@ resource "aws_eip" "elastic_ip" {
   }
 }
 # S3 bucket creation
-#resource "aws_s3_bucket" "b" {
-#  bucket = "kinzh-test-bucket"
+resource "aws_s3_bucket" "b" {
+  bucket = "kinzh-test-bucket"
 
-# tags = {
-#    Name        = "My bucket"
-#    Environment = "Dev"
-#  }
-#}
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
 
-#resource "aws_s3_bucket_acl" "kinzh-test" {
-#  bucket = aws_s3_bucket.b.id
-#  acl    = "private"
-#}
+resource "aws_s3_bucket_acl" "kinzh-test" {
+  bucket = aws_s3_bucket.b.id
+  acl    = "private"
+}
 #DB mysql creation
 resource "aws_db_instance" "kinzh-test" {
   allocated_storage    = 10
@@ -141,7 +138,7 @@ resource "aws_db_instance" "kinzh-test" {
   password             = "dbpassword"
   parameter_group_name = "default.mysql5.7"
   skip_final_snapshot  = true
-  identifier           = "kinzh-db-test"
+  identifier = "kinzh-db-test"
 
   # Naming DB instance
   tags = {
