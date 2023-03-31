@@ -11,7 +11,7 @@ variable "sg_db_ingress" {
   type = map(object({
     port = number
     protocol = string
-    self = boot
+    self = bool
   }))
   description = "map of ingress rules"  
 }
@@ -19,7 +19,7 @@ variable "sg_db_egress" {
   type = map(object({
     port = number
     protocol = string
-    self = boot
+    self = bool
   }))
   description = "map of egress rules"
 }
